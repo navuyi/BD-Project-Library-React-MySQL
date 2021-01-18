@@ -1,0 +1,60 @@
+.navbarMain{
+  width: 100vw;
+  height: 6vh;
+
+  background-color: rgb(34, 34, 34);
+  position: absolute;
+  opacity: 1;
+
+}
+.navbarTitle{
+  font-size: 2vw;
+  color: whitesmoke;
+  font-family: "Lucida Handwriting";
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 5vw;
+  
+
+  /* noselect */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+.manageButton{
+  position: absolute;
+  top:50%;
+  transform: translateY(-50%);
+  width: 6vw;
+  height: 5vh;
+  left:32%;
+
+  border-radius: 0.5vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  color: whitesmoke;
+  font-size: 1.1vw;
+
+  /* noselect */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+.manageButton:hover{
+  background-color: indigo;
+}
+.manageButton:active{
+  box-shadow: 0px 0px 5px #ffffff;
+}

@@ -1,0 +1,104 @@
+.pane{
+  width: 25vw;
+  height: 70vh;
+  background-image: linear-gradient(rgb(37,37,37), #4e4e4e);
+  opacity: 0.97;
+
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) ;
+
+  border-radius: 1.5vw;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+.title{
+  color: whitesmoke;
+  font-size: 3vw;
+
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 10%;
+}
+.form{
+  margin-top: 60%;
+}
+.input{
+  font-size: 1vw;
+  text-decoration: none;
+  outline: none;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  
+
+  border: none;
+  border-radius: 0.5vw;
+
+  width: 60%;
+  height: 2vh;
+  text-align: center;
+  padding-top: 0.5vh;
+  padding-bottom: 0.5vh;
+}
+.inputLabel{
+  font-size: 1vw;
+  color: whitesmoke;
+
+  display: block;
+  margin-left: 20%;
+  margin-top: 2.5vh;
+  margin-bottom: 0.5vh;
+
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+.button{
+  width: 5vw;
+  height: 5vh;
+  background-color: rgb(56, 56, 56);
+  border-radius: 0.5vw;
+  color: whitesmoke;
+  font-size: 1vw;
+
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 70%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: none;
+  box-shadow: none;
+  outline: none;
+  text-decoration: none;
+}
+.button:hover{
+  background-color: indigo;
+}
+.button:active{
+  box-shadow: 0px 0px 5px #ffffff;
+}
+
+.errorInfo{
+  position: absolute;
+  left:50%;
+  transform: translateX(-50%);
+  bottom: 15%;
+
+  font-size: 1vw;
+  font-weight: bold;
+  color: rgba(206, 7, 7, 0.678);
+}

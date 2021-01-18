@@ -1,0 +1,128 @@
+.main{
+  width: 50%;
+  height: 80%;
+
+  background-color:  rgba(61, 60, 60, 0.801);
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 47%;
+  border-radius: 2vw;
+
+}
+.title{
+  width: 100%;
+  height: 10%;
+  background-image: linear-gradient(rgb(26, 26, 25), rgb(34,34,34));
+  position: absolute;
+  top:0;
+  
+  border-top-left-radius: 2vw;
+  border-top-right-radius: 2vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  color: whitesmoke;
+  font-size: 1.2vw;
+}
+.container{
+  position: absolute;
+  left: 10%;
+  top: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.label{
+  width: 6vw;
+  height: auto;
+  background-image: linear-gradient(rgb(128, 70, 5), rgb(199, 139, 10));
+  margin: 2vh;
+  text-align: center;
+
+  font-size: 1.3vw;
+  padding: 0.2em;
+  border-radius: 0.2em;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(209, 110, 18);
+}
+
+.input{
+  width: 15vw;
+  height: 1.9vw;
+  margin: 2vh;
+  text-align: center;
+  font-size: 0.9vw;
+  padding: 0.2em;
+
+  border-radius: 0.5vw;
+  border: none;
+  outline: none;
+}
+.authorInput{
+  width: 5.5vw;
+  height: 1.9vw;
+  margin: 2vh;
+  text-align: center;
+  font-size: 0.9vw;
+  padding: 0.2em;
+
+  border-radius: 0.5vw;
+  border: none;
+  outline: none;
+}
+
+.wrapper{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 30vw;
+}
+
+
+
+
+
+.submitPane{
+  position: absolute;
+  top: 59%;
+  transform: translateY(-50%);
+  left: 77%;
+}
+.button{
+  font-size: 1.2vw;
+  color: rgb(8, 8, 88);
+  border-radius: 1vw;
+  width: 8vw;
+  height: 10vh;
+
+  background-image: linear-gradient(rgb(128, 70, 5), rgb(199, 139, 10));
+  border-style: solid;
+  border: none;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(211, 158, 11);
+
+  outline: none;
+  text-decoration: none;
+}
+.button:hover{
+  box-shadow: 0px 0px 10px 1px #f3b736;
+}
+.button:active{
+  box-shadow: 0px 0px 10px 5px #ffffff;
+}
+.submitInfo{
+  width: 8vw;
+  height: 3vh;
+  text-align: center;
+  margin-top: 1vh;
+  font-size: 1.1vw;
+  color: green;
+}
+

@@ -1,0 +1,304 @@
+
+.wrapper{
+  height: 80vh;
+
+  position: absolute;
+  top: 10%;
+  left: 30%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.displayPane{
+  width: 55vw;
+  height: 80vh;
+  background-color: rgb(120, 121, 122, 0.8);
+  border-top-right-radius: 0.5vw;
+  border-top-left-radius: 0.5vw;
+
+  z-index: 2;
+  border-style: solid;
+  border-width: 0px;
+
+  display: flex;
+  justify-content: center;
+  scrollbar-color: light;
+}
+.paginator{
+  width: 100%;
+  height: 7vh;
+  background-color: rgb(36, 36, 36);
+
+  border-bottom-left-radius: 1vw;
+  border-bottom-right-radius: 1vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pageNavbar{
+  width: 20%;
+  height: 80%;
+  background-color:rgb(49, 49, 49);
+
+  border-radius: 1vw;
+  box-shadow: 0px 0px 5px 1px #ffffff;
+
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: row;
+}
+.pageInput{
+  width: 2vw;
+  text-align: center;
+  font-size: 1vw;
+  border-radius: 0.5vw;
+
+  border: none;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(54, 53, 51);
+}
+.prev{
+  width: 2vw;
+  height: 4vh;
+  background-image: url("./ArrowLeft.png");
+  background-size: cover;
+  filter: invert(0.6);
+  
+}
+.prev:hover{
+  filter: invert(0.3);
+}
+.prev:active{
+  filter: brightness(10);
+}
+.next{
+  width: 2vw;
+  height: 4vh;
+  background-image: url("./ArrowRight.png");
+  background-size: cover;
+  filter: invert(0.6);
+}
+.next:hover{
+  filter: invert(0.3);
+}
+.next:active{
+  filter: brightness(10);
+}
+
+.table{
+  border-collapse: separate;
+  border-spacing: 0px 0px;
+  width: 100%;
+  
+  table-layout: fixed;
+
+  
+}
+td{
+  text-align: center;
+  font-size: 1vw;
+  padding-left: 0px;
+  padding-right: 5px;
+
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.tableTitleBar{
+  background-color: rgb(36, 36, 36);
+  position: sticky;
+  top: 0;
+  color: whitesmoke;
+  z-index: 1;
+  
+  
+  /* noselect */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+th{
+  font-size: 1.3vw;
+  max-width: 50px;
+}
+.moreButton{
+  background-color: rgb(36, 36, 36);
+  color: whitesmoke;
+  border-radius: 0.5vw;
+  position: relative;
+  
+  padding-bottom: 0.1em;
+  padding-top: 0.1em;
+  
+  border: none;
+  outline: none;
+  text-decoration: none;
+
+  
+  font-size: 1vw;
+
+  /* noselect */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+.moreButton:hover, .signInButton:hover{
+  background-color: indigo;
+}
+.moreButton:active, .signInButton:active{
+  box-shadow: 0px 0px 5px #ffffff;
+}
+
+
+.optionsPane{
+  width: 15vw;
+  height: 80vh;
+  position: absolute;
+  left: 10%;
+  top: 10%;
+
+  background-color:  rgb(168, 168, 168, 0.9);
+  border-radius: 0.5vw;
+
+  background:
+  linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,
+  linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px,
+  linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px,
+  linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px,
+  linear-gradient(90deg, #1b1b1b 10px, transparent 10px),
+  linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+  background-color: #131313;
+  background-size: 20px 20px;
+}
+.optionsTitle{
+  position: absolute;
+  width: 100%;
+  height: 5vh;
+  background-color: rgb(36, 36, 36);
+  border-top-right-radius: 0.5vw;
+  border-top-left-radius: 0.5vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: whitesmoke;
+  font-size: 1.5vw;
+
+  /* noselect */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+.filtersContainer{
+  width: 100%;
+  height: 85vh;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  
+  /* noselect */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+.label{
+  font-size: 1.2vw;
+  color: rgb(216, 127, 10);
+}
+.select{
+  width: 9.5vw;
+}
+.input{
+  width: 9.5vw;
+  font-size: 1vw;
+  border-radius: 0.2vw;
+  border: none;
+  padding-top: 0.4em;
+  padding-bottom: 0.4em;
+  text-align: left;
+  text-align: center;
+}
+.filterButton{
+  font-size: 1.2vw;
+  color: rgb(8, 8, 88);
+  border-radius: 0.5vw;
+  width: 6vw;
+  height: 5vh;
+
+  background-image: linear-gradient(rgb(128, 70, 5), rgb(199, 139, 10));
+  border-style: solid;
+  border: none;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(141, 104, 4);
+
+  outline: none;
+  text-decoration: none;
+}
+.filterButton:hover{
+  box-shadow: 0px 0px 10px 1px #f3b736;
+}
+.filterButton:active{
+  box-shadow: 0px 0px 10px 5px #ffffff;
+}
+
+
+
+
+.loading{
+  position: absolute;
+  font-size: 3vw;
+  font-weight: 400;
+  color: rgb(235, 158, 43);
+  padding: 1.5em;
+
+  left: 60%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  border-radius: 0.5em;
+  box-shadow: 0px 0px 20px 5px orange;
+
+  background-color: rgb(45, 45, 46);
+}
+
+.inputWrapper{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.eraseFilter{
+  width: 25px;
+  height: 25px;
+  
+  margin-left: 20px;
+
+  background-image: url('./close.png');
+  background-size: cover;
+  filter:invert(0.5);
+}
+.eraseFilter:hover{
+  filter:invert(1);
+}
+.eraseFilter:active{
+  filter: drop-shadow(0px 0px 5px #ffffff);
+}
