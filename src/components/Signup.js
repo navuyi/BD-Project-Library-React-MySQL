@@ -42,7 +42,7 @@ class Signup extends React.Component{
       {crossDomain: true}
     )
     .then(function(response){
-        if(response.status === 200){
+        if(response.status === 204){
           console.log("Succesfull registration");
           console.log(response);
           this.props.showSignIn(); 

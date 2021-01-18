@@ -12,7 +12,6 @@ class Account extends React.Component{
       isPasswordChangeVisible: false,
       bookToExtend: null
     }
-
     // Bindings
     this.fetchDataFromAPI = this.fetchDataFromAPI.bind(this);
     this.refreshToken = this.refreshToken.bind(this);
