@@ -35,7 +35,7 @@ class More extends React.Component{
         {crossDomain: true})
       .then(function(response){
         // Handle successful response
-        if(response.status===200){
+        if(response.status===204){
           console.log(response);
           let submitInfo = `Rented "${this.props.selectedBook.title}"`;
           this.setState({submitInfo: submitInfo});
