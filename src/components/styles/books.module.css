@@ -96,17 +96,16 @@
   width: 100%;
   
   table-layout: fixed;
-
-  
 }
+
 td{
   text-align: center;
   font-size: 1vw;
   padding-left: 0px;
   padding-right: 5px;
 
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 .tableTitleBar{
   background-color: rgb(36, 36, 36);
