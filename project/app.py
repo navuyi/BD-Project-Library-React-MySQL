@@ -59,9 +59,9 @@ def create_app():
 
         # Open connection to database and add new user
         cur = mysql.connection.cursor()
-        statement = f'''INSERT INTO users (fname, lname, password, email) 
-                    VALUES ('{fname}', '{lname}', '{pwdhash}', '{email}')'''
-        cur.execute(statement)
+        statement = f'''INSERT INTO users (fname, lname, password, email) VALUES (%s, %s, %s, %s)'''
+        insert_tuple = (fname, lname, pwdhash, email)
+        cur.execute(statement, insert_tuple)
         mysql.connection.commit()
 
         return jsonify("User has been added!"), 204
@@ -84,8 +84,9 @@ def create_app():
 
         # Get email address and hashed password from database
         cur = mysql.connection.cursor()
-        statement = f''' SELECT email, password, id, is_admin FROM users WHERE email='{email}' '''
-        cur.execute(statement)
+        statement = f''' SELECT email, password, id, is_admin FROM users WHERE email = %s '''
+        insert_tuple = (email,)
+        cur.execute(statement, insert_tuple)
         result = cur.fetchall()
         if len(result) == 0:
             return "Incorrect login or password", 401
@@ -97,7 +98,6 @@ def create_app():
         if hash_password(password) == db_password:
             access_token = create_access_token(identity=email)
             refresh_token = create_refresh_token(identity=email)
-            print(access_token)
             return {
                        'email': email,
                        'id': user_id,
@@ -112,7 +112,7 @@ def create_app():
     @cross_origin()
     @jwt_required
     def get_books():
-        statement = ''' SELECT book.id, COUNT(copy.id)/(SELECT COUNT(*) FROM books_has_categories 
+        statement = f''' SELECT book.id, COUNT(copy.id)/(SELECT COUNT(*) FROM books_has_categories 
                         WHERE books_id = book.id), book.title, book.year_release, author.fname, author.lname, pub.name, 
                         GROUP_CONCAT(DISTINCT(category.name) SEPARATOR ', ') FROM books book, authors author, 
                         publishers pub, book_copies copy, books_has_categories bhc, categories category
@@ -140,53 +140,55 @@ def create_app():
         author_id = request.json.get('author_id')
         category_id = request.json.get('category_id')
         publisher_id = request.json.get('publisher_id')
-        page = int(request.json.get('page'))
+        try:
+            page = int(request.json.get('page'))
+        except:
+            return "You're trying to do something bad", 500
 
-        if not author_id:
-            author_id = 'ANY(SELECT author_id FROM books)'
-        elif author_id:
-            author_id = int(author_id)
-
-        if not publisher_id:
-            publisher_id = 'ANY(SELECT publisher_id FROM books)'
-        elif publisher_id:
-            publisher_id = int(publisher_id)
-
-        statement_start = f'''SELECT book.id, COUNT(copy.id)/(SELECT COUNT(*) FROM books_has_categories 
+        statement_start = f'''SELECT book.id, COUNT(copy.id)/(SELECT COUNT(*) FROM books_has_categories  
                               WHERE books_id = book.id), book.title, book.year_release, author.fname, author.lname,
-                              pub.name, GROUP_CONCAT(DISTINCT(category.name) SEPARATOR ', ') FROM books book, 
-                              authors author, publishers pub, book_copies copy, books_has_categories bhc, 
-                              categories category WHERE book.author_id = author.id AND copy.books_id = book.id 
-                              AND copy.is_rental = 0 AND book.publisher_id = pub.id  AND bhc.books_id = book.id 
-                              AND book.author_id = {author_id} AND book.publisher_id = {publisher_id}'''
-        statement_end = f''' GROUP BY book.id ORDER BY book.id LIMIT 10 OFFSET {(page - 1) * 10}'''
+                              pub.name, GROUP_CONCAT(DISTINCT(category.name) SEPARATOR ", ") FROM books book,
+                              authors author, publishers pub, book_copies copy, books_has_categories bhc,
+                              categories category WHERE book.author_id = author.id AND copy.books_id = book.id
+                              AND copy.is_rental = 0 AND book.publisher_id = pub.id  AND bhc.books_id = book.id'''
+        statement_end = f''' GROUP BY book.id ORDER BY book.id LIMIT 10 OFFSET {(page - 1) * 10} '''
         statement_end_pages = f''' GROUP BY book.id ORDER BY book.id'''
 
         if not title:
             if not category_id:
                 statement_body = f''' AND bhc.categories_id = category.id'''
+                insert_list_pages = []
             elif category_id:
-                category_id = int(category_id)
-                statement_body = f''' AND bhc.categories_id = {category_id} AND category.id IN(SELECT categories_id 
+                statement_body = f''' AND bhc.categories_id = %s AND category.id IN(SELECT categories_id
                                 FROM books_has_categories WHERE books_id = book.id)'''
+                insert_list_pages = [category_id]
         elif title:
-            title = f''' '%{title.strip()}%' '''
+            title = '%' + title.strip() + '%'
             if not category_id:
-                statement_body = f''' AND book.title LIKE {title} AND bhc.categories_id = category.id'''
+                statement_body = f''' AND book.title LIKE %s AND bhc.categories_id = category.id'''
+                insert_list_pages = [title]
             elif category_id:
-                category_id = int(category_id)
-                statement_body = f''' AND book.title LIKE {title} AND bhc.categories_id = {category_id} AND 
-                                category.id IN(SELECT categories_id FROM books_has_categories WHERE books_id = book.id)                                
+                statement_body = f''' AND book.title LIKE %s AND bhc.categories_id = %s AND
+                                category.id IN(SELECT categories_id FROM books_has_categories WHERE books_id = book.id)
                                 '''
+                insert_list_pages = [title, category_id]
+
+        if author_id:
+            statement_body = statement_body + f''' AND book.author_id = %s'''
+            insert_list_pages.append(author_id)
+
+        if publisher_id:
+            statement_body = statement_body + f''' AND book.publisher_id = %s'''
+            insert_list_pages.append(publisher_id)
 
         statement = statement_start + statement_body + statement_end
         statement_pages = statement_start + statement_body + statement_end_pages
         cur = mysql.connection.cursor()
-        cur.execute(statement)
+        cur.execute(statement, tuple(insert_list_pages))
         filtered_books = cur.fetchall()
-        cur.execute(statement_pages)
+        cur.execute(statement_pages, tuple(insert_list_pages))
         pages = cur.fetchall()
-        result = {'filtered_books': filtered_books, "pages": math.ceil(len(pages)/10)}
+        result = {'filtered_books': filtered_books, "pages": math.ceil(len(pages) / 10)}
 
         return jsonify(result), 200
 
@@ -205,14 +207,15 @@ def create_app():
         else:
             cur = mysql.connection.cursor()
             try:
-                statement_get_book_copy = f'''SELECT id FROM book_copies b WHERE '{book_id}' = b.books_id AND is_rental = 0'''
-                cur.execute(statement_get_book_copy)
+                statement_get_book_copy = f'''SELECT id FROM book_copies b WHERE %s = b.books_id AND is_rental = 0'''
+                insert_tuple = (book_id,)
+                cur.execute(statement_get_book_copy, insert_tuple)
                 book_copy_id = cur.fetchall()[0][0]
                 statement = f'''INSERT INTO orders (user_id, order_date, pickup_date, return_date, book_copies_id) 
-                                SELECT '{user_id}', CURDATE(), '{pickup_date}', 
-                                DATE_ADD('{pickup_date}', INTERVAL 30 DAY), '{book_copy_id}'
-                                WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.book_copies_id = '{book_copy_id}')'''
-                cur.execute(statement)
+                                SELECT %s, CURDATE(), %s, DATE_ADD(%s, INTERVAL 30 DAY), %s
+                                WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.book_copies_id = %s)'''
+                insert_tuple = (user_id, pickup_date, pickup_date, book_copy_id, book_copy_id)
+                cur.execute(statement, insert_tuple)
                 mysql.connection.commit()
                 return 'Book has been ordered!', 204
             except:
@@ -224,8 +227,9 @@ def create_app():
     def return_book():
         user_id = request.json.get('user_id')
         cur = mysql.connection.cursor()
-        statement = f'''SELECT * FROM users WHERE id = '{user_id}' AND is_admin=1'''
-        cur.execute(statement)
+        statement = f'''SELECT * FROM users WHERE id = %s AND is_admin=1'''
+        insert_tuple = (user_id,)
+        cur.execute(statement, insert_tuple)
         result = cur.fetchall()
 
         if len(result) == 0:
@@ -234,8 +238,9 @@ def create_app():
             order_id = request.json.get('order_id')
             cur = mysql.connection.cursor()
             try:
-                statement = f'''DELETE FROM orders WHERE id = '{order_id}' '''
-                cur.execute(statement)
+                statement = f'''DELETE FROM orders WHERE id = %s '''
+                insert_tuple = (order_id,)
+                cur.execute(statement, insert_tuple)
                 mysql.connection.commit()
                 return 'Book has been returned', 204
             except:
@@ -248,14 +253,16 @@ def create_app():
         user_id = request.json.get('user_id')
         cur = mysql.connection.cursor()
         try:
-            statement = f'''SELECT fname, lname, email, rented_books FROM users WHERE id = '{user_id}' '''
-            cur.execute(statement)
+            statement = f'''SELECT fname, lname, email, rented_books FROM users WHERE id = %s '''
+            insert_tuple = (user_id,)
+            cur.execute(statement, insert_tuple)
             user_data = cur.fetchall()
             statement = f'''SELECT author.fname, author.lname, book.title, DATEDIFF(o.return_date, CURDATE()), 
                             o.is_prolonged, o.id
-                            FROM authors author, books book, book_copies copy, orders o WHERE o.user_id = '{user_id}' 
+                            FROM authors author, books book, book_copies copy, orders o WHERE o.user_id = %s 
                             AND o.book_copies_id = copy.id AND copy.books_id = book.id AND book.author_id = author.id'''
-            cur.execute(statement)
+            insert_tuple=(user_id,)
+            cur.execute(statement, insert_tuple)
             user_books = cur.fetchall()
             result = user_data + user_books
             return jsonify(result), 200
@@ -270,8 +277,9 @@ def create_app():
         cur = mysql.connection.cursor()
         try:
             statement = f'''UPDATE orders SET is_prolonged = 1, return_date = DATE_ADD(return_date, INTERVAL 30 DAY)
-                            WHERE id = '{order_id}' '''
-            cur.execute(statement)
+                            WHERE id = %s '''
+            insert_tuple = (order_id,)
+            cur.execute(statement, insert_tuple)
             mysql.connection.commit()
             return 'Prolonged', 204
         except:
@@ -285,55 +293,20 @@ def create_app():
         current_password = request.json.get('current_password')
         new_password = request.json.get('new_password')
         cur = mysql.connection.cursor()
-        statement = f'''SELECT password FROM users WHERE id = '{user_id}' '''
-        cur.execute(statement)
+        statement = f'''SELECT password FROM users WHERE id = %s '''
+        insert_tuple = (user_id,)
+        cur.execute(statement, insert_tuple)
         result = cur.fetchall()
 
         if result[0][0] == hash_password(current_password):
             db_password = hash_password(new_password)
-            statement = f'''UPDATE users SET password = '{db_password}' WHERE id = '{user_id}' '''
-            cur.execute(statement)
+            statement = f'''UPDATE users SET password = %s WHERE id = %s '''
+            insert_tuple = (db_password, user_id)
+            cur.execute(statement, insert_tuple)
             mysql.connection.commit()
             return 'Password has been changed', 204
         else:
             return 'Incorrect password', 401
-
-    @app.route('/add_author', methods=['POST'])
-    @cross_origin()
-    @jwt_required
-    def add_author():
-        user_id = request.json.get('user_id')
-        cur = mysql.connection.cursor()
-        statement = f'''SELECT * FROM users WHERE id = '{user_id}' AND is_admin=1'''
-        cur.execute(statement)
-        result = cur.fetchall()
-        if len(result) == 0:
-            return "Access forbidden", 403
-        else:
-            fname = request.json.get('fname')
-            lname = request.json.get('lname')
-            statement = f'''INSERT INTO authors(fname, lname) VALUES ('{fname}', '{lname}')'''
-            cur.execute(statement)
-            mysql.connection.commit()
-            return "Author has been added", 204
-
-    @app.route('/add_category', methods=['POST'])
-    @cross_origin()
-    @jwt_required
-    def add_category():
-        user_id = request.json.get('user_id')
-        cur = mysql.connection.cursor()
-        statement = f'''SELECT * FROM users WHERE id = '{user_id}' AND is_admin=1'''
-        cur.execute(statement)
-        result = cur.fetchall()
-        if len(result) == 0:
-            return "Access forbidden", 403
-        else:
-            name = request.json.get('name')
-            statement = f'''INSERT INTO categories(name) VALUES ('{name}')'''
-            cur.execute(statement)
-            mysql.connection.commit()
-            return "Category has been added", 204
 
     @app.route('/get_ACP', methods=['GET'])
     @cross_origin()
@@ -355,21 +328,64 @@ def create_app():
         result = {'authors': authors, 'categories': categories, 'publishers': publishers}
         return jsonify(result), 200
 
+    @app.route('/add_author', methods=['POST'])
+    @cross_origin()
+    @jwt_required
+    def add_author():
+        user_id = request.json.get('user_id')
+        cur = mysql.connection.cursor()
+        statement = f'''SELECT * FROM users WHERE id = %s AND is_admin=1'''
+        insert_tuple = (user_id,)
+        cur.execute(statement, insert_tuple)
+        result = cur.fetchall()
+        if len(result) == 0:
+            return "Access forbidden", 403
+        else:
+            fname = request.json.get('fname')
+            lname = request.json.get('lname')
+            statement = f'''INSERT INTO authors(fname, lname) VALUES (%s, %s)'''
+            insert_tuple = (fname, lname)
+            cur.execute(statement, insert_tuple)
+            mysql.connection.commit()
+            return "Author has been added", 204
+
+    @app.route('/add_category', methods=['POST'])
+    @cross_origin()
+    @jwt_required
+    def add_category():
+        user_id = request.json.get('user_id')
+        cur = mysql.connection.cursor()
+        statement = f'''SELECT * FROM users WHERE id = %s AND is_admin=1'''
+        insert_tuple = (user_id,)
+        cur.execute(statement, insert_tuple)
+        result = cur.fetchall()
+        if len(result) == 0:
+            return "Access forbidden", 403
+        else:
+            name = request.json.get('name')
+            statement = f'''INSERT INTO categories(name) VALUES (%s)'''
+            insert_tuple = (name,)
+            cur.execute(statement, insert_tuple)
+            mysql.connection.commit()
+            return "Category has been added", 204
+
     @app.route('/add_publisher', methods=['POST'])
     @cross_origin()
     @jwt_required
     def add_publisher():
         user_id = request.json.get('user_id')
         cur = mysql.connection.cursor()
-        statement = f'''SELECT * FROM users WHERE id = '{user_id}' AND is_admin=1'''
-        cur.execute(statement)
+        statement = f'''SELECT * FROM users WHERE id = %s AND is_admin=1'''
+        insert_tuple = (user_id,)
+        cur.execute(statement, insert_tuple)
         result = cur.fetchall()
         if len(result) == 0:
             return "Access forbidden", 403
         else:
             name = request.json.get('name')
-            statement = f'''INSERT INTO publishers(name) VALUES ('{name}')'''
-            cur.execute(statement)
+            statement = f'''INSERT INTO publishers(name) VALUES (%s)'''
+            insert_tuple = (name,)
+            cur.execute(statement, insert_tuple)
             mysql.connection.commit()
             return "Publisher has been added", 204
 
@@ -379,16 +395,18 @@ def create_app():
     def add_books():
         user_id = request.json.get('user_id')
         cur = mysql.connection.cursor()
-        statement = f'''SELECT * FROM users WHERE id = '{user_id}' AND is_admin=1'''
-        cur.execute(statement)
+        statement = f'''SELECT * FROM users WHERE id = %s AND is_admin=1'''
+        insert_tuple = (user_id,)
+        cur.execute(statement, insert_tuple)
         result = cur.fetchall()
         if len(result) == 0:
             return "Access forbidden", 403
         else:
             fname = request.json.get('fname')
             lname = request.json.get('lname')
-            statement = f'''SELECT id FROM authors WHERE fname = '{fname}' AND lname = '{lname}' '''
-            cur.execute(statement)
+            statement = f'''SELECT id FROM authors WHERE fname = %s AND lname = %s '''
+            insert_tuple = (fname, lname)
+            cur.execute(statement, insert_tuple)
             result = cur.fetchall()
             if len(result) != 0:
                 author_id = result[0][0]
@@ -396,8 +414,9 @@ def create_app():
                 return 'noAuthor', 500
 
             publisher = request.json.get('publisher')
-            statement = f'''SELECT id FROM publishers WHERE name = '{publisher}' '''
-            cur.execute(statement)
+            statement = f'''SELECT id FROM publishers WHERE name = %s '''
+            insert_tuple = (publisher,)
+            cur.execute(statement, insert_tuple)
             result = cur.fetchall()
             if len(result) != 0:
                 publisher_id = result[0][0]
@@ -405,8 +424,9 @@ def create_app():
                 return 'noPublisher', 500
 
             category = request.json.get('category')
-            statement = f'''SELECT id FROM categories WHERE name = '{category}' '''
-            cur.execute(statement)
+            statement = f'''SELECT id FROM categories WHERE name = %s '''
+            insert_tuple = (category,)
+            cur.execute(statement, insert_tuple)
             result = cur.fetchall()
             if len(result) != 0:
                 category_id = result[0][0]
@@ -417,29 +437,32 @@ def create_app():
             year = request.json.get('year')
             amount = int(request.json.get('amount'))
 
-            statement = f'''SELECT id FROM books WHERE title = '{title}' AND  year_release = '{year}' 
-                            AND author_id = '{author_id}' AND publisher_id = '{publisher_id}' '''
-            cur.execute(statement)
+            statement = f'''SELECT id FROM books WHERE title = %s AND  year_release = %s 
+                            AND author_id = %s AND publisher_id = %s '''
+            insert_tuple = (title, year, author_id, publisher_id)
+            cur.execute(statement, insert_tuple)
             result = cur.fetchall()
 
             if len(result) == 0:
-                statement = f'''INSERT INTO books (title, year_release, author_id, publisher_id) VALUES ('{title}', 
-                                '{year}', '{author_id}', '{publisher_id}') '''
-                cur.execute(statement)
+                statement = f'''INSERT INTO books (title, year_release, author_id, publisher_id) VALUES (%s, %s, %s, %s) '''
+                insert_tuple = (title, year, author_id, publisher_id)
+                cur.execute(statement, insert_tuple)
 
                 statement = 'SELECT * FROM books ORDER BY id DESC LIMIT 1'
                 cur.execute(statement)
                 result = cur.fetchall()
                 book_id = result[0][0]
 
-                statement = f'''INSERT INTO books_has_categories VALUES ('{book_id}', '{category_id}') '''
-                cur.execute(statement)
+                statement = f'''INSERT INTO books_has_categories VALUES (%s, %s) '''
+                insert_tuple = (book_id, category_id)
+                cur.execute(statement, insert_tuple)
             else:
                 book_id = result[0][0]
 
-            statement = f'''INSERT INTO book_copies (books_id) VALUES ('{book_id}') '''
+            statement = f'''INSERT INTO book_copies (books_id) VALUES (%s) '''
+            insert_tuple = (book_id,)
             for i in range(amount):
-                cur.execute(statement)
+                cur.execute(statement, insert_tuple)
                 mysql.connection.commit()
 
             return "Book has been added", 204
